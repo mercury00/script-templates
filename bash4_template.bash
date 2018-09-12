@@ -140,7 +140,7 @@ function parse_opts() {
         esac
         shift
     done
-    _GLOBALS_['args']=("${@:-}")
+    _ARGS_=("${@:-}")
 }
 
 
