@@ -75,6 +75,12 @@ function debug() {
     [ "${_DEBUG_FLAG_:-}" == true ] && ${@:-echo} || _INVALID_=0
 }
 
+function dryrun_eval() {
+    ## usage: dryrun_eval "rm -rf /tmp/deleted"
+    ## WARNING: USES eval!!! Be Very Careful!
+    [ "${_DRY_RUN_:-}" == true ] && echo "${@:-}" || eval "${@:-echo}"
+}
+
 function usage() {
     # #=---------------------------------------------------------=#
     # |  Echo text about the proper usage of this script for help |

@@ -17,7 +17,7 @@ def debug(message):
         print(message)
 
 def parse_opts():
-    """ docstring
+    """ Parse the arguments passed to the script for evaluating
     """
     from argparse import ArgumentParser, REMAINDER
 
