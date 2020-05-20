@@ -6,6 +6,7 @@
 #....................................................................
 
 declare -A _GLOBALS_=()
+declare -a _ARGS_
 function set_constants() {
     # #=---------------------------------------------------------------=#
     # | This is at the top of the script for easily editing constants,  |
@@ -99,8 +100,14 @@ function usage() {
 }
 
 function parse_opts() {
-    while [ $# -gt 0 ]; do
-        case ${1:-} in
+    unset _nextval_
+    for _argv_ in "${@:-}"; do
+        if [[ ! -z ${_nextval_:-} ]]; then
+            eval "${_nextval_}=\"${_argv_}\""; unset _nextval_
+            continue
+        fi
+        shopt -s extglob
+        case "${_argv_}" in
             -h | --help)
                 usage; success
                 ;;
@@ -116,37 +123,22 @@ function parse_opts() {
             # #=-|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|=#
             # '  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V '
             -p | -p=* | --param | --param=*)
-                local arg="${1#-*=*}"; local arg=${arg#--param*}; local arg=${arg#-p*};
-                ## ^^ Change the --param/-p fields in the above two lines for new parameters to add
-                if [[ -z ${arg:-} ]]; then local argshift=0; else local argshift=1; local arg+=" ";fi
-                if [[ ! -z ${2:-} ]] && [[ "${2:0:1}" != "-" ]]; then local arg+="${@:2}";
-                    if [[ "${arg:0:1}" == '"' ]] || [[ "${arg:0:1}" == "'" ]]; then
-                        local arg="${arg%[\"\']*}"; local arg="${arg#*[\"\']}"; shift;
-                    else local arg=${arg%%[[:space:]]-*}; shift; fi
-                elif [[ ${argshift} != 1 ]]; then echo "You specified: $1, but provided no value"; usage; success;
-                else argshift=0; fi
-                array_to_count=(${arg}); local num_of_array=$((${#array_to_count[@]} - ${argshift}));
-                _GLOBALS_['param']="${arg}"; shift "${num_of_array-1}"; continue
-                ;;
-            --)
-                break
-                ;;
-            -[[:alpha:]][[:alpha:]]*)
-                split=${1}; shift
-                set -- $(echo "$split" | cut -c 2- | sed 's/./-& /g') "$@"
+                _argv_="${_argv_##@(--|-)@(p|param)?(=| )}"
+                if [[ -z "${_argv_:-}" ]]; then _nextval_="_GLOBALS_['param']"
+                else _GLOBALS_['param']=${_argv_}; fi
                 continue
-                ;;
-            --* | -?)
-                echo "Not a valid option: '${1}'" >&2
+            ;;
+            -* | -*=*)
+                echo "Not a valid option: '${_argv_}'" >&2
                 usage; success
-                ;;
+            ;;
             *)
-                break
-                ;;
+                _ARGS_+=(${_argv_})
+                continue
+            ;;
         esac
-        shift
+        shopt -u extglob
     done
-    _ARGS_=("${@:-}")
 }
 
 
