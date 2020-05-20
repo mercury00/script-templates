@@ -103,7 +103,8 @@ function parse_opts() {
     unset _nextval_
     for _argv_ in "${@:-}"; do
         if [[ ! -z ${_nextval_:-} ]]; then
-            eval "${_nextval_}=\"${_argv_}\""; unset _nextval_
+            delcare "${_nextval_}=\"${_argv_}\"";
+            unset _nextval_
             continue
         fi
         shopt -s extglob
