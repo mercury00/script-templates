@@ -103,7 +103,7 @@ function parse_opts() {
     unset _nextval_
     for _argv_ in "${@:-}"; do
         if [[ ! -z ${_nextval_:-} ]]; then
-            declare "${_nextval_}=\"${_argv_}\"";
+            declare "${_nextval_}=${_argv_}";
             unset _nextval_
             continue
         fi
