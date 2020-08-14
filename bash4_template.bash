@@ -103,7 +103,7 @@ function parse_opts() {
     unset _nextval_
     for _argv_ in "${@:-}"; do
         if [[ ! -z ${_nextval_:-} ]]; then
-            declare "${_nextval_}=${_argv_}";
+            _GLOBALS_[${_nextval_}]=${_argv_}
             unset _nextval_
             continue
         fi
@@ -125,7 +125,7 @@ function parse_opts() {
             # '  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V '
             -p | -p=* | --param | --param=*)
                 _argv_="${_argv_##@(--|-)@(p|param)?(=| )}"
-                if [[ -z "${_argv_:-}" ]]; then _nextval_="_GLOBALS_['param']"
+                if [[ -z "${_argv_:-}" ]]; then _nextval_="param"
                 else _GLOBALS_['param']=${_argv_}; fi
                 continue
             ;;
