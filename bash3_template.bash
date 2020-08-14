@@ -110,10 +110,10 @@ function parse_opts() {
                 usage; success
                 ;;
             -v | --verbose)
-                _GLOBALS_['debug_flag']=true
+                _DEBUG_FLAG_=true
                 ;;
             -n | --dry-run)
-                _GLOBALS_['dry_run']=true
+                _DRY_RUN_=true
                 ;;
             # #=--------------------------------------------------------=#
             # | place new options here, and update the 'usage' function  |
