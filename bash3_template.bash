@@ -74,13 +74,13 @@ function onexit() {
 
 function debug() {
     ## usage: debug echo "This is a debug message for example"
-    [ "${_DEBUG_FLAG_:-}" == true ] && ${@:-echo} || _INVALID_=0
+    [ "${_DEBUG_FLAG_:-}" == "true" ] && ${@:-echo} || _INVALID_=0
 }
 
 function dryrun_eval() {
     ## usage: dryrun_eval "rm -rf /tmp/deleted"
     ## WARNING: USES eval!!! Be Very Careful!
-    [ "${_DRY_RUN_:-}" == true ] && echo "${@:-}" || eval "${@:-echo}"
+    [ "${_DRY_RUN_:-}" == "true" ] && echo "${@:-}" || eval "${@:-echo}"
 }
 
 function usage() {
@@ -112,10 +112,10 @@ function parse_opts() {
                 usage; success
                 ;;
             -v | --verbose)
-                _DEBUG_FLAG_=true
+                _DEBUG_FLAG_="true"
                 ;;
             -n | --dry-run)
-                _DRY_RUN_=true
+                _DRY_RUN_="true"
                 ;;
             # #=--------------------------------------------------------=#
             # | place new options here, and update the 'usage' function  |
