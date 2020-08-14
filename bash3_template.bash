@@ -1,9 +1,11 @@
+#!/bin/bash -euE
 # $Id: script 3 2017-01-01 12:00:00Z user $ (work_name)
 #....................................................................
 # This is a default template to begin writing a simple bash script
 # You can add a description of your script in this box
 #....................................................................
 
+declare -a _ARGS_
 function set_constants() {
     # #=---------------------------------------------------------------=#
     # | This is at the top of the script for easily editing constants,  |
