@@ -53,9 +53,9 @@ function get_lock() {
 
     exec 100>${lockfile} || error 1 "Unable to redirect to file descriptor 100 to lock program"
     if [[ ${wait} == 'wait' ]]; then
-        /usr/bin/flock 100 || "Timeout waiting for previous instance to finish, please try again"
+        /usr/bin/flock 100 || error 1 "Timeout waiting for previous instance to finish, please try again"
     else
-        /usr/bin/flock --nonblock 100 || "Another instance of this program is already running, please try again"
+        /usr/bin/flock --nonblock 100 || error 1 "Another instance of this program is already running, please try again"
     fi
 }
 
@@ -69,7 +69,7 @@ function error() {
     local error_linenum="${BASH_LINENO[0]}"
     local exit_status="${1:-${?}}" ; if [[ "${exit_status:-}" == *[![:digit:]]* ]]; then exit_status=1; fi
     local exit_message="${2:-unknown error}"
-    echo -en "${c_red}Fatal error ${exit_status:-unknown} in function ${error_function:-unknown} on line ${c_brightred}${error_linenum:-unknown}${c_clear}: ${exit_message:-unknown} "
+    printf '%bFatal error %d in function %s on line %b%d%b: %s' "${c_red}" ${exit_status:-'-1'} "${error_function:-unknown}" "${c_brightred}" ${error_linenum:-'-1'} "${c_clear}" "${exit_message:-unknown}"
     dirs -c
     exit ${exit_status}
 }
@@ -82,21 +82,21 @@ function onexit() {
         dirs -c
         exit ${exit_status}
     else
-    echo -en "Script: ${0} stopped\n"
+    printf 'Script: %s stopped\n' "${0}"
     dirs -c
     exit ${exit_status}
     fi
 }
 
 function debug() {
-    ## usage: debug echo "This is a debug message for example"
+    ## usage: debug printf "This is a debug message for example\n"
     [ "${_GLOBALS_['debug_flag']:-}" == true ] && ${@:-echo} || _INVALID_=0
 }
 
 function dryrun_eval() {
     ## usage: dryrun_eval "rm -rf /tmp/deleted"
     ## WARNING: USES eval!!! Be Very Careful!
-    [ "${_GLOBALS_['dry_run']:-}" == true ] && echo "${@:-}" || eval "${@:-echo}"
+    [ "${_GLOBALS_['dry_run']:-}" == true ] && printf "%s\n" "${@:-}" || eval "${@:-echo}"
 }
 
 function usage() {
@@ -105,13 +105,11 @@ function usage() {
     # #=-|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|-=#
     # '  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  '
     local scriptname=$(basename ${0})
-    echo "A description of this script"
-    echo ""
-    echo "Usage: ${scriptname} [-v] [-h] ..."
-    echo "    -v|--verbose     be verbose"
-    echo "    -h|--help        print this message"
-    echo "    -n|--dry-run     don't actually do anything, just say what would be done"
-    echo ""
+    printf "A description of this script\n\n"
+    printf "Usage: ${scriptname} [-v] [-h] ...\n"
+    printf "    -v|--verbose     be verbose\n"
+    printf "    -h|--help        print this message\n"
+    printf "    -n|--dry-run     don't actually do anything, just say what would be done\n\n"
 }
 
 function parse_opts() {
@@ -150,7 +148,8 @@ function parse_opts() {
                 ;;
             -[[:alpha:]][[:alpha:]]*)
                 local singleargs="${_argv_#-}"; local -a singles=();
-                for (( index=0; index<=${#singleargs}; index++ )); do singles+=("-${singleargs:${index}:1}"); done
+                for (( index=0; index<=${#singleargs}; index++ )); do
+                    singles+=("-${singleargs:${index}:1}"); done
                 parse_opts "${singles[@]}"
                 continue
                 ;;
