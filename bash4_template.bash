@@ -144,14 +144,24 @@ function parse_opts() {
                 else _GLOBALS_['param']=${_argv_}; fi
                 continue
             ;;
-            -* | -*=*)
-                echo "Not a valid option: '${_argv_}'" >&2
-                usage; success
-            ;;
-            *)
-                _ARGS_+=(${_argv_})
+            --)
+                _ARGS_+=(${_argv_##-- })
                 continue
-            ;;
+                ;;
+            -[[:alpha:]][[:alpha:]]*)
+                local singleargs="${_argv_#-}"; local -a singles=();
+                for (( index=0; index<=${#singleargs}; index++ )); do singles+=("-${singleargs:${index}:1}"); done
+                parse_opts "${singles[@]}"
+                continue
+                ;;
+            -* | -*=*)
+                printf "Not a valid option: '%s'\n" "${_argv_}" >&2
+                usage; success
+                ;;
+            *)
+              	_ARGS_+=(${_argv_})
+                continue
+                ;;
         esac
         shopt -u extglob
     done
