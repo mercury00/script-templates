@@ -17,6 +17,7 @@ function set_constants() {
     # '  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  V  '
     _GLOBALS_['debug_flag']=false
     _GLOBALS_['dry_run']=false
+    _GLOBALS_['lockdir']='/tmp'
     ## Set defaults for command line options
     _GLOBALS_['param']="default value"
 }
@@ -41,6 +42,20 @@ function define_colors() {
         c_yellow=''; c_brightyellow=''; c_blue=''; c_brightblue=''
         c_magenta=''; c_brightmagenta=''; c_cyan=''; c_brightcyan=''
         c_black=''; c_grey=''
+    fi
+}
+
+function get_lock() {
+    ### get the lock for this program - usage: get_lock <wait>
+    wait=${1:-}
+    local scriptname=$(basename ${0})
+    local lockfile="${_GLOBALS_['lockdir']}/${scriptname}.scriptlock"
+
+    exec 100>${lockfile} || error 1 "Unable to redirect to file descriptor 100 to lock program"
+    if [[ ${wait} == 'wait' ]]; then
+        /usr/bin/flock 100 || "Timeout waiting for previous instance to finish, please try again"
+    else
+        /usr/bin/flock --nonblock 100 || "Another instance of this program is already running, please try again"
     fi
 }
 
