@@ -69,7 +69,7 @@ function error() {
     local error_linenum="${BASH_LINENO[0]}"
     local exit_status="${1:-${?}}" ; if [[ "${exit_status:-}" == *[![:digit:]]* ]]; then exit_status=1; fi
     local exit_message="${2:-unknown error}"
-    printf '%bFatal error %d in function %s on line %b%d%b: %s' "${c_red}" ${exit_status:-'-1'} "${error_function:-unknown}" "${c_brightred}" ${error_linenum:-'-1'} "${c_clear}" "${exit_message:-unknown}"
+    printf '%bFatal error %d in function %s on line %b%d%b: %s\n' "${c_red}" ${exit_status:-'-1'} "${error_function:-unknown}" "${c_brightred}" ${error_linenum:-'-1'} "${c_clear}" "${exit_message:-unknown}"
     dirs -c
     exit ${exit_status}
 }
@@ -82,9 +82,9 @@ function onexit() {
         dirs -c
         exit ${exit_status}
     else
-    printf 'Script: %s stopped\n' "${0}"
-    dirs -c
-    exit ${exit_status}
+        printf 'Script: %s stopped\n' "${0}"
+        dirs -c
+        exit ${exit_status}
     fi
 }
 
