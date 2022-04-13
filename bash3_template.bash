@@ -1,4 +1,4 @@
-#!/bin/bash -euE
+#!/bin/bash -euE -o pipefail
 # $Id: script 3 2017-01-01 12:00:00Z user $ (work_name)
 #....................................................................
 # This is a default template to begin writing a simple bash script
@@ -154,7 +154,7 @@ function parse_opts() {
 #....................................................................
 trap onexit HUP INT TERM QUIT EXIT
 trap error ERR ILL
-set -o nounset -o errexit
+set -o nounset -o errexit -o errtrace -o pipefail
 #....................................................................
 #  Defining variables we're using and handle options
 #....................................................................

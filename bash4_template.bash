@@ -69,7 +69,7 @@ function error() {
     local error_linenum="${BASH_LINENO[0]}"
     local exit_status="${1:-${?}}" ; if [[ "${exit_status:-}" == *[![:digit:]]* ]]; then exit_status=1; fi
     local exit_message="${2:-unknown error}"
-    printf '%bFatal error %d in function %s on line %b%d%b: %s' "${c_red}" ${exit_status:-'-1'} "${error_function:-unknown}" "${c_brightred}" ${error_linenum:-'-1'} "${c_clear}" "${exit_message:-unknown}"
+    printf '%bFatal error %d in function %s on line %b%d%b: %s\n' "${c_red}" ${exit_status:-'-1'} "${error_function:-unknown}" "${c_brightred}" ${error_linenum:-'-1'} "${c_clear}" "${exit_message:-unknown}" 1>&2
     dirs -c
     exit ${exit_status}
 }
@@ -78,11 +78,12 @@ function success() {
 }
 function onexit() {
     local exit_status=${1:-$?}
+    trap '' HUP INT TERM QUIT EXIT ERR ILL
     if [ ${exit_status} == 0 ]; then
         dirs -c
         exit ${exit_status}
     else
-    printf 'Script: %s stopped\n' "${0}"
+    printf 'Script: %s stopped\n' "${0}" 1>&2
     dirs -c
     exit ${exit_status}
     fi
@@ -90,7 +91,7 @@ function onexit() {
 
 function debug() {
     ## usage: debug printf "This is a debug message for example\n"
-    [ "${_GLOBALS_['debug_flag']:-}" == true ] && ${@:-echo} || _INVALID_=0
+    [ "${_GLOBALS_['debug_flag']:-}" == true ]&& "${@:-echo}" 1>&2 || _INVALID_=0
 }
 
 function dryrun_eval() {
@@ -141,7 +142,7 @@ function parse_opts() {
                 if [[ -z "${_argv_:-}" ]]; then _nextval_="param"
                 else _GLOBALS_['param']=${_argv_}; fi
                 continue
-            ;;
+                ;;
             --)
                 _ARGS_+=(${_argv_##-- })
                 continue
@@ -179,7 +180,7 @@ function parse_opts() {
 #....................................................................
 trap onexit HUP INT TERM QUIT EXIT
 trap error ERR ILL
-set -o nounset -o errexit
+set -o nounset -o errexit -o errtrace -o pipefail
 #....................................................................
 #  Defining variables we're using and handle options
 #....................................................................

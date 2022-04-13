@@ -7,7 +7,8 @@
 # You can add a description of your script in this box
 #....................................................................
 #
-from sys import exit
+from sys import exit, stdin
+from argparse import ArgumentParser, REMAINDER
 
 GLOBALS={}
 def debug(message):
@@ -19,8 +20,6 @@ def debug(message):
 def parse_opts():
     """ Parse the arguments passed to the script for evaluating
     """
-    from argparse import ArgumentParser, REMAINDER
-
     parser = ArgumentParser(description='A description of this script ')
     parser.add_argument('--verbose', '-v', action='store_true', help="be verbose")
     parser.add_argument('--dry-run', '-n', action='store_true', help="don't actually do anything, just say what would be done")
@@ -30,14 +29,17 @@ def parse_opts():
     cli_args = parser.parse_args()
     GLOBALS['verbose'] = cli_args.verbose
     GLOBALS['dry_run'] = cli_args.dry_run
-    GLOBALS['args'] = cli_args.remainders
+
+    if stdin.isatty():
+        GLOBALS['args'] = " ".join(cli_args.remainders)
+    else:
+        GLOBALS['args'] = " ".join(cli_args.remainders) + " " + stdin.read()
 
  ## V insert your own functions here! V
 
 def main():
     """ The main function: you can call your functinos from here
     """
-    pass
 
 if __name__ == "__main__":
     """ Start our script when called; exit when imported
